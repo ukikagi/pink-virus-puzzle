@@ -3,8 +3,10 @@
 // load("library.js")
 
 const W = 12, H = 12;
+const MAXQ = 5;
 var field;
 var interval;
+var queue;
 
 var char_x = 0, char_y = 11;
 
@@ -24,8 +26,6 @@ const sampledata =
   "311113311113" +
   "310013310013" +
   "311113311113";
-
-// 0空間 1煉瓦(消) 2ブロック(固) 3はしご 4ロープ 5出口 6お宝 7キャラ
 
 const MoveDir = {
   RIGHT : 0,
@@ -50,10 +50,10 @@ const Tile = {
   // CHAR : 7
 };
 
+newGame();
+
 function newGame() {
-  // clearInterval(interval);
   init();
-  clearInterval(interval);
 }
 
 function init() {
@@ -64,6 +64,10 @@ function init() {
       // console.log((y * W + x) +  ", " + sampledata[y * W + x]);
     }
   }
+
+  char_x = 0, char_y = 11;
+
+  queue = [];
 }
 
 function movable(y, x) {
@@ -84,7 +88,7 @@ function move(dir) {
 
 function isInAir(){
   return ([Tile.LADDER, Tile.ROPE].indexOf(field[char_y][char_x]) == -1
-    && char_y < H-1
+    && char_y < H - 1
     && [Tile.BRICK, Tile.BLOCK, Tile.LADDER].indexOf(field[char_y+1][char_x]) == -1);
 }
 
@@ -95,13 +99,15 @@ function fall() {
 }
 
 function dig(dir) {
-  console.log("dig" + dir)
   var tgt_x = char_x + [1, -1][dir], tgt_y = char_y + 1;
   if(0 <= tgt_x && tgt_x < W && 0 <= tgt_y && tgt_y < H &&
   field[tgt_y][tgt_x] == Tile.BRICK &&
   field[tgt_y-1][tgt_x] != Tile.BRICK && field[tgt_y-1][tgt_x] != Tile.BLOCK) {
     field[tgt_y][tgt_x] = Tile.BLANK;
+    queue.push({x:tgt_x, y:tgt_y});
+    if(queue.length > MAXQ) {
+      var p = queue.shift();
+      field[p.y][p.x] = Tile.BRICK;
+    }
   }
 }
-
-newGame();
