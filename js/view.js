@@ -21,6 +21,7 @@ function render() {
 
   drawChar(char_x, char_y);
 }
+
 setInterval(render, 30);
 
 function drawBlock(x, y, color) {

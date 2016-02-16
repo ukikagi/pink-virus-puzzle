@@ -16,7 +16,7 @@ function makeArray(dim, val) {
   if(dim.length == 0) {
     return val;
   } else { assert(dim.length >= 1);
-    let n    = dim[0];
+    let n = dim[0];
     let odim = dim.slice(1);
     let result = [];
     for(let i of range(n)) {
