@@ -1,0 +1,1 @@
+var WIDTH = 12, HEIGHT = 12;
