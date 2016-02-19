@@ -1,10 +1,9 @@
-"use strict";
-
 function range(x, y, z) {
+  "use strict";
   if(z == undefined) { z = 1; }
   if(y == undefined) { y = x, x = 0; }
   assert(z != 0, "arg 3 must not be zero.");
-  var result = [];
+  let result = [];
   for(; (z > 0 ? x < y : y < x); x += z) {
     result.push(x);
   }
@@ -12,6 +11,7 @@ function range(x, y, z) {
 }
 
 function makeArray(dim, val) {
+  "use strict";
   if(val == undefined) { val = 0; }
   if(dim.length == 0) {
     return val;
@@ -27,8 +27,12 @@ function makeArray(dim, val) {
 }
 
 function assert(b, msg) {
+  "use strict";
   if(msg == undefined) { msg = "assertion error."; }
-  if(!b) {
-    throw msg;
-  }
+  if(!b) { throw msg; }
 }
+
+Array.prototype.sum = function() {
+  "use strict";
+  return this.reduce(function(x,y){return x + y;}, 0);
+};
