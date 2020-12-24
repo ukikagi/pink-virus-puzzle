@@ -9,3 +9,7 @@ export function make2dArray<T>(h: number, w: number, value: T): T[][] {
     .fill(0)
     .map(() => Array(w).fill(value));
 }
+
+export function clone2dArray<T>(xss: T[][]): T[][] {
+  return xss.map((xs) => [...xs]);
+}
