@@ -1,12 +1,22 @@
 import React, { useState } from "react";
 import Board from "./board";
-import { canWalkThrough, countGold, Field, getTile, isFalling } from "./field";
+import {
+  canWalkThrough,
+  countGold,
+  Field,
+  getTile,
+  isDiggable as isBreakable,
+  isFalling,
+  setTile,
+} from "./field";
 import { Level, Tile } from "./level";
-import { MoveDirection, movePoint, Point } from "./point";
+import { MoveDirection as Direction, movePoint, Point } from "./point";
 import { sampleLevel } from "./sampleLevel";
 import { clone2dArray, range } from "./utils";
 
-function initializeModel(level: Level) {
+const MAXQ = 5;
+
+function createModel(level: Level) {
   const width = level.width;
   const height = level.height;
 
@@ -33,50 +43,66 @@ function initializeModel(level: Level) {
   return { field, chara, exit };
 }
 
-function setTile(mutableField: Field, p: Point, tile: Tile): void {
-  mutableField.value[p.y][p.x] = tile;
-}
-
-function reflectChange(mutableField: Field, chara: Point, exit: Point): void {
-  if (getTile(mutableField, chara) === Tile.GOLD) {
-    setTile(mutableField, chara, Tile.BLANK);
-  }
-  if (countGold(mutableField) === 0) {
-    setTile(mutableField, exit, Tile.EXIT);
-  }
-}
-
 export default function Game(props: { width: number; height: number }) {
-  const { field: initField, chara: initChara, exit } = initializeModel(
-    sampleLevel
-  );
-  const [field, setField] = useState(initField);
-  const [chara, setChara] = useState(initChara);
-  // const [queue, setQueue] = useState([]);
-  // const [beated, setBeated] = useState(false);
+  const initialModel = createModel(sampleLevel);
+
+  const [field, setField] = useState<Field>(initialModel.field);
+  const [chara, setChara] = useState<Point>(initialModel.chara);
+  const [queue, setQueue] = useState<Point[]>([]);
+  const [exit, setExit] = useState<Point>(initialModel.exit);
+  const [beated, setBeated] = useState<boolean>(false);
 
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     switch (e.key) {
       case "ArrowDown":
-        move(MoveDirection.DOWN);
+        move(Direction.DOWN);
         break;
       case "ArrowLeft":
-        move(MoveDirection.LEFT);
+        move(Direction.LEFT);
         break;
       case "ArrowRight":
-        move(MoveDirection.RIGHT);
+        move(Direction.RIGHT);
         break;
       case "ArrowUp":
-        move(MoveDirection.UP);
+        move(Direction.UP);
+        break;
+      case "z":
+        dig(Direction.LEFT);
+        break;
+      case "x":
+        dig(Direction.RIGHT);
+        break;
+      case "r":
+        reset(sampleLevel);
         break;
     }
   }
 
-  function move(dir: MoveDirection): void {
-    if (dir === MoveDirection.UP && getTile(field, chara) !== Tile.LADDER) {
+  function reset(level: Level): void {
+    const { field, chara, exit } = createModel(level);
+    setField(field);
+    setChara(chara);
+    setQueue([]);
+    setExit(exit);
+    setBeated(false);
+  }
+
+  function reflectChange(mutableField: Field, chara: Point, exit: Point): void {
+    if (getTile(mutableField, chara) === Tile.GOLD) {
+      setTile(mutableField, chara, Tile.BLANK);
+    }
+    if (getTile(mutableField, chara) === Tile.EXIT) {
+      setBeated(true);
+    }
+    if (countGold(mutableField) === 0) {
+      setTile(mutableField, exit, Tile.EXIT);
+    }
+  }
+
+  function move(dir: Direction): void {
+    if (dir === Direction.UP && getTile(field, chara) !== Tile.LADDER) {
       return;
     }
-
     const newPoint = movePoint(chara, dir);
     if (!canWalkThrough(field, newPoint)) {
       return;
@@ -86,12 +112,28 @@ export default function Game(props: { width: number; height: number }) {
     let newField = { ...field, value: clone2dArray(field.value) };
     reflectChange(newField, newChara, exit);
     while (isFalling(newField, newChara)) {
-      newChara = movePoint(newChara, MoveDirection.DOWN);
+      newChara = movePoint(newChara, Direction.DOWN);
       reflectChange(newField, newChara, exit);
     }
-
     setChara(newChara);
     setField(newField);
+  }
+
+  function dig(dir: Direction.LEFT | Direction.RIGHT): void {
+    const target = movePoint(movePoint(chara, Direction.DOWN), dir);
+    if (!isBreakable(field, target)) {
+      return;
+    }
+    let newField = { ...field, value: clone2dArray(field.value) };
+    let newQueue = [...queue];
+    setTile(newField, target, Tile.BLANK);
+    newQueue.push(target);
+    if (newQueue.length > MAXQ) {
+      const popped = newQueue.shift()!;
+      setTile(newField, popped, Tile.BRICK);
+    }
+    setField(newField);
+    setQueue(newQueue);
   }
 
   return (

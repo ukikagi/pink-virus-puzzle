@@ -11,6 +11,10 @@ export function getTile(field: Field, p: Point): Tile {
   return field.value[p.y][p.x];
 }
 
+export function setTile(mutableField: Field, p: Point, tile: Tile): void {
+  mutableField.value[p.y][p.x] = tile;
+}
+
 export function isInRange(field: Field, p: Point): boolean {
   return 0 <= p.x && p.x < field.width && 0 <= p.y && p.y < field.height;
 }
