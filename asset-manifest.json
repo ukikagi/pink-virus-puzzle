@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/pink-virus-puzzle/static/css/main.c7df85a6.chunk.css",
+    "main.js": "/pink-virus-puzzle/static/js/main.a8883f4e.chunk.js",
+    "main.js.map": "/pink-virus-puzzle/static/js/main.a8883f4e.chunk.js.map",
+    "runtime-main.js": "/pink-virus-puzzle/static/js/runtime-main.9579092a.js",
+    "runtime-main.js.map": "/pink-virus-puzzle/static/js/runtime-main.9579092a.js.map",
+    "static/js/2.1874b137.chunk.js": "/pink-virus-puzzle/static/js/2.1874b137.chunk.js",
+    "static/js/2.1874b137.chunk.js.map": "/pink-virus-puzzle/static/js/2.1874b137.chunk.js.map",
+    "static/js/3.f5526d35.chunk.js": "/pink-virus-puzzle/static/js/3.f5526d35.chunk.js",
+    "static/js/3.f5526d35.chunk.js.map": "/pink-virus-puzzle/static/js/3.f5526d35.chunk.js.map",
+    "index.html": "/pink-virus-puzzle/index.html",
+    "static/css/main.c7df85a6.chunk.css.map": "/pink-virus-puzzle/static/css/main.c7df85a6.chunk.css.map",
+    "static/js/2.1874b137.chunk.js.LICENSE.txt": "/pink-virus-puzzle/static/js/2.1874b137.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9579092a.js",
+    "static/js/2.1874b137.chunk.js",
+    "static/css/main.c7df85a6.chunk.css",
+    "static/js/main.a8883f4e.chunk.js"
+  ]
+}
