@@ -5,18 +5,16 @@ import Board from "./Board";
 import { parseLevel } from "./level";
 import { Direction } from "./point";
 import { sampleLevels } from "./sampleLevel";
+import { Box, Button, MenuItem, Select, TextField } from "@material-ui/core";
 
-const defaultLabel = sampleLevels[0].label;
 const defaultLevelString = sampleLevels[0].data;
-const defaultLevel = parseLevel(defaultLevelString);
 
 function App() {
-  const [gameModel, setGameModel] = useState<GameModel>(
-    createModel(defaultLevel)
-  );
-
-  const [selectValue, setSelectValue] = useState(defaultLabel);
+  const [selectValue, setSelectValue] = useState(defaultLevelString);
   const [levelString, setLevelString] = useState(defaultLevelString);
+  const [gameModel, setGameModel] = useState<GameModel>(
+    createModel(parseLevel(defaultLevelString))
+  );
 
   function loadLevel(levelString: string) {
     const level = parseLevel(levelString);
@@ -24,20 +22,19 @@ function App() {
     setGameModel(model);
   }
 
-  function onLevelStringChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+  function onLevelStringChange(event: React.ChangeEvent<{ value: string }>) {
     setLevelString(event.target.value);
   }
 
-  function onSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    const newLevelString = event.currentTarget.value;
+  function onSelectChange(event: React.ChangeEvent<{ value: unknown }>) {
+    const newLevelString = event.target.value as string;
     setLevelString(newLevelString);
     setSelectValue(newLevelString);
     loadLevel(newLevelString);
   }
 
-  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function onClick() {
     loadLevel(levelString);
-    event.preventDefault();
   }
 
   function onKeyDown<T>(event: React.KeyboardEvent<T>) {
@@ -67,7 +64,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <Box className="App">
       <Board
         tabIndex={0}
         onKeyDown={onKeyDown}
@@ -76,25 +73,34 @@ function App() {
         width={480}
         height={480}
       />
-      <form onSubmit={onSubmit}>
-        <div>
-          <textarea
-            value={levelString}
-            onChange={onLevelStringChange}
-            rows={5}
-            cols={60}
-          />
-        </div>
-        <select value={selectValue} onChange={onSelectChange}>
+      <TextField
+        value={levelString}
+        rows={3}
+        onChange={onLevelStringChange}
+        multiline
+        variant="outlined"
+        style={{ width: 480 }}
+      />
+      <Box>
+        <Select
+          variant="outlined"
+          value={selectValue}
+          onChange={onSelectChange}
+          style={{ width: 320 }}
+        >
           {sampleLevels.map(({ label, data }) => (
-            <option key={label} value={data}>
+            <MenuItem key={label} value={data}>
               {label}
-            </option>
+            </MenuItem>
           ))}
-        </select>
-        <input type="submit" value="Refresh" />
-      </form>
-    </div>
+        </Select>
+      </Box>
+      <Box>
+        <Button onClick={onClick} variant="contained">
+          Refresh
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
