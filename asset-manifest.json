@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/pink-virus-puzzle/static/css/main.c7df85a6.chunk.css",
-    "main.js": "/pink-virus-puzzle/static/js/main.c740469f.chunk.js",
-    "main.js.map": "/pink-virus-puzzle/static/js/main.c740469f.chunk.js.map",
+    "main.js": "/pink-virus-puzzle/static/js/main.38754863.chunk.js",
+    "main.js.map": "/pink-virus-puzzle/static/js/main.38754863.chunk.js.map",
     "runtime-main.js": "/pink-virus-puzzle/static/js/runtime-main.bc486d9f.js",
     "runtime-main.js.map": "/pink-virus-puzzle/static/js/runtime-main.bc486d9f.js.map",
     "static/js/2.533ad354.chunk.js": "/pink-virus-puzzle/static/js/2.533ad354.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.bc486d9f.js",
     "static/js/2.533ad354.chunk.js",
     "static/css/main.c7df85a6.chunk.css",
-    "static/js/main.c740469f.chunk.js"
+    "static/js/main.38754863.chunk.js"
   ]
 }
