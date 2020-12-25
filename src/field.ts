@@ -1,5 +1,6 @@
 import { Tile } from "./level";
 import { Point, Direction, movePoint } from "./point";
+import { range } from "./utils";
 
 export interface Field {
   value: Tile[][];
@@ -42,7 +43,16 @@ export function isFalling(field: Field, p: Point) {
   );
 }
 
+export function fieldToTiles(field: Field) {
+  return range(field.height).flatMap((y) =>
+    range(field.width).map((x) => {
+      const point = { x, y };
+      const tile = getTile(field, point);
+      return { point, tile };
+    })
+  );
+}
+
 export function countJewel(field: Field) {
-  const value = field.value;
-  return value.flatMap((row) => row.filter((x) => x === Tile.JEWEL)).length;
+  return fieldToTiles(field).filter(({ tile }) => tile === Tile.JEWEL).length;
 }

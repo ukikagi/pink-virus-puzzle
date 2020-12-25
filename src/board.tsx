@@ -1,8 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { Tile } from "./level";
 import { Point } from "./point";
-import { Field, getTile } from "./field";
-import { range } from "./utils";
+import { Field, fieldToTiles } from "./field";
 
 const BLOCK_W = 40;
 const BLOCK_H = 40;
@@ -23,16 +22,6 @@ interface BoardProps {
   chara: Point;
   width: number;
   height: number;
-}
-
-function fieldToTiles(field: Field) {
-  return range(field.height).flatMap((y) =>
-    range(field.width).map((x) => {
-      const point = { x, y };
-      const tile = getTile(field, point);
-      return { point, tile };
-    })
-  );
 }
 
 function drawBlock(

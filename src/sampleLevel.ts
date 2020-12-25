@@ -1,8 +1,8 @@
-import { readLevel } from "./level";
+import { parseLevel } from "./level";
 
 const sampleLevelWidth = 12;
 const sampleLevelHeight = 12;
-const sampleLevelString =
+export const sampleLevelString =
   "000000000000" +
   "000007000000" +
   "000003500000" +
@@ -16,7 +16,7 @@ const sampleLevelString =
   "000003130000" +
   "000006130000";
 
-export const sampleLevel = readLevel(
+export const sampleLevel = parseLevel(
   sampleLevelString,
   sampleLevelHeight,
   sampleLevelWidth

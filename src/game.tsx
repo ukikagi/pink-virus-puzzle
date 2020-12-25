@@ -9,41 +9,19 @@ import {
   isFalling,
   setTile,
 } from "./field";
-import { Level, Tile } from "./level";
+import { createModel, Level, parseLevel, Tile } from "./level";
 import { Direction, movePoint, Point } from "./point";
-import { sampleLevel } from "./sampleLevel";
-import { clone2dArray, range } from "./utils";
+import { sampleLevel, sampleLevelString } from "./sampleLevel";
+import { clone2dArray } from "./utils";
 
 const MAXQ = 5;
 
-function createModel(level: Level) {
-  const width = level.width;
-  const height = level.height;
-
-  let value: Tile[][] = clone2dArray(level.field);
-  let chara: Point = { x: 0, y: 0 };
-  let exit: Point = { x: 0, y: 0 };
-
-  range(height).forEach((y) => {
-    range(width).forEach((x) => {
-      switch (value[y][x]) {
-        case Tile.CHARA:
-          value[y][x] = Tile.BLANK;
-          chara = { x, y };
-          break;
-        case Tile.EXIT:
-          value[y][x] = Tile.BRICK;
-          exit = { x, y };
-          break;
-      }
-    });
-  });
-
-  const field: Field = { value, width, height };
-  return { field, chara, exit };
+interface GameProp {
+  width: number;
+  height: number;
 }
 
-export default function Game(props: { width: number; height: number }) {
+export default function Game(props: GameProp) {
   const initialModel = createModel(sampleLevel);
 
   const [field, setField] = useState<Field>(initialModel.field);
@@ -51,6 +29,19 @@ export default function Game(props: { width: number; height: number }) {
   const [queue, setQueue] = useState<Point[]>([]);
   const [exit, setExit] = useState<Point>(initialModel.exit);
   const [beated, setBeated] = useState<boolean>(false);
+
+  const [level, setLevel] = useState(sampleLevel);
+  const [levelString, setLevelString] = useState(sampleLevelString);
+
+  function onLevelStringChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setLevelString(e.target.value);
+  }
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const level = parseLevel(levelString, 12, 12);
+    reset(level);
+    e.preventDefault();
+  }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
     switch (e.key) {
@@ -73,12 +64,13 @@ export default function Game(props: { width: number; height: number }) {
         dig(Direction.RIGHT);
         break;
       case "r":
-        reset(sampleLevel);
+        reset(level);
         break;
     }
   }
 
   function reset(level: Level): void {
+    setLevel(level);
     const { field, chara, exit } = createModel(level);
     setField(field);
     setChara(chara);
@@ -144,6 +136,17 @@ export default function Game(props: { width: number; height: number }) {
         width={props.width}
         height={props.height}
       />
+      <form onSubmit={onSubmit}>
+        <div>
+          <textarea
+            value={levelString}
+            onChange={onLevelStringChange}
+            rows={5}
+            cols={60}
+          />
+        </div>
+        <input type="submit" value="Refresh" />
+      </form>
     </div>
   );
 }
