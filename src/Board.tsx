@@ -22,6 +22,8 @@ interface BoardProps {
   chara: Point;
   width: number;
   height: number;
+  tabIndex: number;
+  onKeyDown: (event: React.KeyboardEvent<HTMLCanvasElement>) => void;
 }
 
 function drawBlock(
@@ -49,10 +51,12 @@ export default function Board(props: BoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) {
+    const canvas = canvasRef.current;
+    if (!canvas) {
       return;
     }
-    const context = canvasRef.current.getContext("2d")!;
+    canvas.focus();
+    const context = canvas.getContext("2d")!;
     context.clearRect(0, 0, props.width, props.height);
 
     fieldToTiles(props.field)
@@ -62,5 +66,13 @@ export default function Board(props: BoardProps) {
       });
     drawChara(context, props.chara);
   }, [props]);
-  return <canvas ref={canvasRef} width={props.width} height={props.height} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      width={props.width}
+      height={props.height}
+      tabIndex={props.tabIndex}
+      onKeyDown={props.onKeyDown}
+    />
+  );
 }

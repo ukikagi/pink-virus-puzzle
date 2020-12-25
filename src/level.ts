@@ -17,7 +17,14 @@ export interface Level {
   height: number;
 }
 
-export function parseLevel(data: string, height: number, width: number): Level {
+const FIXED_HEIGHT = 12;
+const FIXED_WIDTH = 12;
+
+export function parseLevel(
+  data: string,
+  height: number = FIXED_HEIGHT,
+  width: number = FIXED_WIDTH
+): Level {
   console.assert(data.length === width * height);
   const field = range(height).map((y) =>
     range(width).map((x) => parseInt(data[y * width + x]))
