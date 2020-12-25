@@ -9,30 +9,64 @@ import {
   isFalling,
   setTile,
 } from "./field";
-import { createModel, Level, parseLevel, Tile } from "./level";
+import { Level, parseLevel, Tile } from "./level";
 import { Direction, movePoint, Point } from "./point";
 import { sampleLevels } from "./sampleLevel";
-import { clone2dArray } from "./utils";
+import { clone2dArray, range } from "./utils";
 
 const MAXQ = 5;
+const defaultLabel = sampleLevels[0].label;
+const defaultLevelString = sampleLevels[0].data;
+const defaultLevel = parseLevel(defaultLevelString, 12, 12);
 
 interface GameProp {
   width: number;
   height: number;
 }
 
+interface GameState {
+  field: Field;
+  chara: Point;
+  exit: Point;
+  queue: Point[];
+  beated: boolean;
+}
+
+function cloneState(gameState: GameState): GameState {
+  return JSON.parse(JSON.stringify(gameState));
+}
+
+function initializeGameState(level: Level): GameState {
+  const width = level.width;
+  const height = level.height;
+
+  let value: Tile[][] = clone2dArray(level.field);
+  let chara: Point = { x: 0, y: 0 };
+  let exit: Point = { x: 0, y: 0 };
+
+  range(height).forEach((y) => {
+    range(width).forEach((x) => {
+      switch (value[y][x]) {
+        case Tile.CHARA:
+          value[y][x] = Tile.BLANK;
+          chara = { x, y };
+          break;
+        case Tile.EXIT:
+          value[y][x] = Tile.BRICK;
+          exit = { x, y };
+          break;
+      }
+    });
+  });
+
+  const field = { value, width, height };
+  return { field, chara, exit, queue: [], beated: false };
+}
+
 export default function Game(props: GameProp) {
-  const defaultLabel = sampleLevels[0].label;
-  const defaultLevelString = sampleLevels[0].data;
-  const defaultLevel = parseLevel(defaultLevelString, 12, 12);
-
-  const initialModel = createModel(defaultLevel);
-
-  const [field, setField] = useState<Field>(initialModel.field);
-  const [chara, setChara] = useState<Point>(initialModel.chara);
-  const [queue, setQueue] = useState<Point[]>([]);
-  const [exit, setExit] = useState<Point>(initialModel.exit);
-  const [beated, setBeated] = useState<boolean>(false);
+  const [gameState, setGameState] = useState<GameState>(
+    initializeGameState(defaultLevel)
+  );
 
   const [selectValue, setSelectValue] = useState(defaultLabel);
   const [level, setLevel] = useState(defaultLevel);
@@ -84,68 +118,67 @@ export default function Game(props: GameProp) {
 
   function reset(level: Level): void {
     setLevel(level);
-    const { field, chara, exit } = createModel(level);
-    setField(field);
-    setChara(chara);
-    setQueue([]);
-    setExit(exit);
-    setBeated(false);
+    setGameState(initializeGameState(level));
   }
 
-  function reflect(mutableField: Field, chara: Point, exit: Point): void {
-    if (getTile(mutableField, chara) === Tile.JEWEL) {
-      setTile(mutableField, chara, Tile.BLANK);
+  function reflect(mutState: GameState): void {
+    const { field: mutField, chara, exit } = mutState;
+    if (getTile(mutField, chara) === Tile.JEWEL) {
+      setTile(mutField, chara, Tile.BLANK);
     }
-    if (getTile(mutableField, chara) === Tile.EXIT) {
-      setBeated(true);
+    if (getTile(mutField, chara) === Tile.EXIT) {
+      mutState.beated = true;
     }
-    if (countJewel(mutableField) === 0) {
-      setTile(mutableField, exit, Tile.EXIT);
+    if (countJewel(mutField) === 0) {
+      setTile(mutField, exit, Tile.EXIT);
     }
   }
 
   function move(dir: Direction): void {
-    if (dir === Direction.UP && getTile(field, chara) !== Tile.LADDER) {
+    let state = cloneState(gameState);
+    if (
+      dir === Direction.UP &&
+      getTile(state.field, state.chara) !== Tile.LADDER
+    ) {
       return;
     }
-    const newPoint = movePoint(chara, dir);
-    if (!canGoThrough(field, newPoint)) {
+    const newPoint = movePoint(state.chara, dir);
+    if (!canGoThrough(state.field, newPoint)) {
       return;
     }
 
-    let newChara = { ...newPoint };
-    let newField = { ...field, value: clone2dArray(field.value) };
-    reflect(newField, newChara, exit);
-    while (isFalling(newField, newChara)) {
-      newChara = movePoint(newChara, Direction.DOWN);
-      reflect(newField, newChara, exit);
+    state.chara = newPoint;
+    reflect(state);
+    while (isFalling(state.field, state.chara)) {
+      state.chara = movePoint(state.chara, Direction.DOWN);
+      reflect(state);
     }
-    setChara(newChara);
-    setField(newField);
+
+    setGameState(state);
   }
 
   function dig(dir: Direction.LEFT | Direction.RIGHT): void {
-    const target = movePoint(movePoint(chara, Direction.DOWN), dir);
-    if (!isBreakable(field, target)) {
+    let state = cloneState(gameState);
+    const target = movePoint(movePoint(state.chara, Direction.DOWN), dir);
+    if (!isBreakable(state.field, target)) {
       return;
     }
-    let newField = { ...field, value: clone2dArray(field.value) };
-    let newQueue = [...queue];
-    setTile(newField, target, Tile.BLANK);
-    newQueue.push(target);
-    if (newQueue.length > MAXQ) {
-      const popped = newQueue.shift()!;
-      setTile(newField, popped, Tile.BRICK);
+
+    setTile(state.field, target, Tile.BLANK);
+    state.queue.push(target);
+    if (state.queue.length > MAXQ) {
+      const popped = state.queue.shift()!;
+      setTile(state.field, popped, Tile.BRICK);
     }
-    setField(newField);
-    setQueue(newQueue);
+
+    setGameState(state);
   }
 
   return (
     <div tabIndex={0} onKeyDown={onKeyDown}>
       <Board
-        field={field}
-        chara={chara}
+        field={gameState.field}
+        chara={gameState.chara}
         width={props.width}
         height={props.height}
       />
