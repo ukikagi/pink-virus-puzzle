@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import Board from "./board";
 import {
-  canWalkThrough,
-  countGold,
+  canGoThrough,
+  countJewel,
   Field,
   getTile,
-  isDiggable as isBreakable,
+  isBreakable,
   isFalling,
   setTile,
 } from "./field";
 import { Level, Tile } from "./level";
-import { MoveDirection as Direction, movePoint, Point } from "./point";
+import { Direction, movePoint, Point } from "./point";
 import { sampleLevel } from "./sampleLevel";
 import { clone2dArray, range } from "./utils";
 
@@ -88,13 +88,13 @@ export default function Game(props: { width: number; height: number }) {
   }
 
   function reflectChange(mutableField: Field, chara: Point, exit: Point): void {
-    if (getTile(mutableField, chara) === Tile.GOLD) {
+    if (getTile(mutableField, chara) === Tile.JEWEL) {
       setTile(mutableField, chara, Tile.BLANK);
     }
     if (getTile(mutableField, chara) === Tile.EXIT) {
       setBeated(true);
     }
-    if (countGold(mutableField) === 0) {
+    if (countJewel(mutableField) === 0) {
       setTile(mutableField, exit, Tile.EXIT);
     }
   }
@@ -104,7 +104,7 @@ export default function Game(props: { width: number; height: number }) {
       return;
     }
     const newPoint = movePoint(chara, dir);
-    if (!canWalkThrough(field, newPoint)) {
+    if (!canGoThrough(field, newPoint)) {
       return;
     }
 

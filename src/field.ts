@@ -1,5 +1,5 @@
 import { Tile } from "./level";
-import { Point, MoveDirection, movePoint } from "./point";
+import { Point, Direction, movePoint } from "./point";
 
 export interface Field {
   value: Tile[][];
@@ -19,30 +19,30 @@ export function isInRange(field: Field, p: Point): boolean {
   return 0 <= p.x && p.x < field.width && 0 <= p.y && p.y < field.height;
 }
 
-export function canWalkThrough(field: Field, p: Point): boolean {
+export function canGoThrough(field: Field, p: Point): boolean {
   return (
     isInRange(field, p) && ![Tile.BRICK, Tile.BLOCK].includes(getTile(field, p))
   );
 }
 
-export function isDiggable(field: Field, p: Point): boolean {
+export function isBreakable(field: Field, p: Point): boolean {
   return (
     isInRange(field, p) &&
     getTile(field, p) === Tile.BRICK &&
-    canWalkThrough(field, movePoint(p, MoveDirection.UP))
+    canGoThrough(field, movePoint(p, Direction.UP))
   );
 }
 
 export function isFalling(field: Field, p: Point) {
-  const pointBelow = movePoint(p, MoveDirection.DOWN);
+  const pointBelow = movePoint(p, Direction.DOWN);
   return (
-    ![Tile.LADDER, Tile.ROPE].includes(getTile(field, p)) &&
-    canWalkThrough(field, pointBelow) &&
+    ![Tile.LADDER, Tile.ROPE, Tile.EXIT].includes(getTile(field, p)) &&
+    canGoThrough(field, pointBelow) &&
     ![Tile.LADDER].includes(getTile(field, pointBelow))
   );
 }
 
-export function countGold(field: Field) {
+export function countJewel(field: Field) {
   const value = field.value;
-  return value.flatMap((row) => row.filter((x) => x === Tile.GOLD)).length;
+  return value.flatMap((row) => row.filter((x) => x === Tile.JEWEL)).length;
 }

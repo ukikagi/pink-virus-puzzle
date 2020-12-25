@@ -7,7 +7,7 @@ export enum Tile {
   LADDER = 3,
   ROPE = 4,
   EXIT = 5,
-  GOLD = 6,
+  JEWEL = 6,
   CHARA = 7,
 }
 
