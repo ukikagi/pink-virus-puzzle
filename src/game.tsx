@@ -11,7 +11,7 @@ import {
 } from "./field";
 import { createModel, Level, parseLevel, Tile } from "./level";
 import { Direction, movePoint, Point } from "./point";
-import { sampleLevel, sampleLevelString } from "./sampleLevel";
+import { sampleLevels } from "./sampleLevel";
 import { clone2dArray } from "./utils";
 
 const MAXQ = 5;
@@ -22,7 +22,11 @@ interface GameProp {
 }
 
 export default function Game(props: GameProp) {
-  const initialModel = createModel(sampleLevel);
+  const defaultLabel = sampleLevels[0].label;
+  const defaultLevelString = sampleLevels[0].data;
+  const defaultLevel = parseLevel(defaultLevelString, 12, 12);
+
+  const initialModel = createModel(defaultLevel);
 
   const [field, setField] = useState<Field>(initialModel.field);
   const [chara, setChara] = useState<Point>(initialModel.chara);
@@ -30,21 +34,30 @@ export default function Game(props: GameProp) {
   const [exit, setExit] = useState<Point>(initialModel.exit);
   const [beated, setBeated] = useState<boolean>(false);
 
-  const [level, setLevel] = useState(sampleLevel);
-  const [levelString, setLevelString] = useState(sampleLevelString);
+  const [selectValue, setSelectValue] = useState(defaultLabel);
+  const [level, setLevel] = useState(defaultLevel);
+  const [levelString, setLevelString] = useState(defaultLevelString);
 
-  function onLevelStringChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setLevelString(e.target.value);
+  function onLevelStringChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    setLevelString(event.target.value);
   }
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    const levelString = event.currentTarget.value;
+    const level = parseLevel(levelString, 12, 12);
+    setLevelString(event.currentTarget.value);
+    setSelectValue(event.currentTarget.value);
+    reset(level);
+  }
+
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     const level = parseLevel(levelString, 12, 12);
     reset(level);
-    e.preventDefault();
+    event.preventDefault();
   }
 
-  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    switch (e.key) {
+  function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    switch (event.key) {
       case "ArrowDown":
         move(Direction.DOWN);
         break;
@@ -79,7 +92,7 @@ export default function Game(props: GameProp) {
     setBeated(false);
   }
 
-  function reflectChange(mutableField: Field, chara: Point, exit: Point): void {
+  function reflect(mutableField: Field, chara: Point, exit: Point): void {
     if (getTile(mutableField, chara) === Tile.JEWEL) {
       setTile(mutableField, chara, Tile.BLANK);
     }
@@ -102,10 +115,10 @@ export default function Game(props: GameProp) {
 
     let newChara = { ...newPoint };
     let newField = { ...field, value: clone2dArray(field.value) };
-    reflectChange(newField, newChara, exit);
+    reflect(newField, newChara, exit);
     while (isFalling(newField, newChara)) {
       newChara = movePoint(newChara, Direction.DOWN);
-      reflectChange(newField, newChara, exit);
+      reflect(newField, newChara, exit);
     }
     setChara(newChara);
     setField(newField);
@@ -145,6 +158,13 @@ export default function Game(props: GameProp) {
             cols={60}
           />
         </div>
+        <select value={selectValue} onChange={onSelectChange}>
+          {sampleLevels.map(({ label, data }) => (
+            <option key={label} value={data}>
+              {label}
+            </option>
+          ))}
+        </select>
         <input type="submit" value="Refresh" />
       </form>
     </div>
