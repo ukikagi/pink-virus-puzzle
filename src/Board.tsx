@@ -50,14 +50,6 @@ function drawCell(
   );
 }
 
-function drawChara(
-  context: CanvasRenderingContext2D,
-  tileset: HTMLImageElement,
-  point: Point
-) {
-  drawCell(context, tileset, point, Tile.CHARA);
-}
-
 function loadImage() {
   const image = new Image();
   image.src = tileset;
@@ -85,7 +77,7 @@ export default function Board(props: BoardProps) {
       .forEach(({ point, tile }) => {
         drawCell(context, tileset, point, tile);
       });
-    if (!beated) drawChara(context, tileset, chara);
+    if (!beated) drawCell(context, tileset, chara, Tile.CHARA);
 
     return () => context.clearRect(0, 0, props.width, props.height);
   });
