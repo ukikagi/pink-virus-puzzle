@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/pink-virus-puzzle/static/css/main.c7df85a6.chunk.css",
-    "main.js": "/pink-virus-puzzle/static/js/main.5a7e3a84.chunk.js",
-    "main.js.map": "/pink-virus-puzzle/static/js/main.5a7e3a84.chunk.js.map",
-    "runtime-main.js": "/pink-virus-puzzle/static/js/runtime-main.59bccb23.js",
-    "runtime-main.js.map": "/pink-virus-puzzle/static/js/runtime-main.59bccb23.js.map",
-    "static/js/2.b4d32091.chunk.js": "/pink-virus-puzzle/static/js/2.b4d32091.chunk.js",
-    "static/js/2.b4d32091.chunk.js.map": "/pink-virus-puzzle/static/js/2.b4d32091.chunk.js.map",
-    "static/js/3.78ccc147.chunk.js": "/pink-virus-puzzle/static/js/3.78ccc147.chunk.js",
-    "static/js/3.78ccc147.chunk.js.map": "/pink-virus-puzzle/static/js/3.78ccc147.chunk.js.map",
+    "main.js": "/pink-virus-puzzle/static/js/main.5470af5e.chunk.js",
+    "main.js.map": "/pink-virus-puzzle/static/js/main.5470af5e.chunk.js.map",
+    "runtime-main.js": "/pink-virus-puzzle/static/js/runtime-main.3bb49c3e.js",
+    "runtime-main.js.map": "/pink-virus-puzzle/static/js/runtime-main.3bb49c3e.js.map",
+    "static/js/2.cabb5c0b.chunk.js": "/pink-virus-puzzle/static/js/2.cabb5c0b.chunk.js",
+    "static/js/2.cabb5c0b.chunk.js.map": "/pink-virus-puzzle/static/js/2.cabb5c0b.chunk.js.map",
+    "static/js/3.6a05e92a.chunk.js": "/pink-virus-puzzle/static/js/3.6a05e92a.chunk.js",
+    "static/js/3.6a05e92a.chunk.js.map": "/pink-virus-puzzle/static/js/3.6a05e92a.chunk.js.map",
     "index.html": "/pink-virus-puzzle/index.html",
     "static/css/main.c7df85a6.chunk.css.map": "/pink-virus-puzzle/static/css/main.c7df85a6.chunk.css.map",
-    "static/js/2.b4d32091.chunk.js.LICENSE.txt": "/pink-virus-puzzle/static/js/2.b4d32091.chunk.js.LICENSE.txt"
+    "static/js/2.cabb5c0b.chunk.js.LICENSE.txt": "/pink-virus-puzzle/static/js/2.cabb5c0b.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.59bccb23.js",
-    "static/js/2.b4d32091.chunk.js",
+    "static/js/runtime-main.3bb49c3e.js",
+    "static/js/2.cabb5c0b.chunk.js",
     "static/css/main.c7df85a6.chunk.css",
-    "static/js/main.5a7e3a84.chunk.js"
+    "static/js/main.5470af5e.chunk.js"
   ]
 }
