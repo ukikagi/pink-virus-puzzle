@@ -1,5 +1,8 @@
-# pink-virus-puzzle
+# Pink Virus Puzzle
 某○ードランナーライクなパズルゲーム
+
+## 使用素材
+- "[Oubliette Tileset](https://safwyl.itch.io/oubliette-tileset)" by [safwyl](https://safwyl.itch.io/) (licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))
 
 ## リンク
 - [ぼらＱ main](https://web.archive.org/web/20060116224359/http://boraq.hp.infoseek.co.jp/main.htm)

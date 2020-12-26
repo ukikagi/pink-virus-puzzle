@@ -3,19 +3,23 @@ import { Tile } from "./level";
 import { Point } from "./point";
 import { fieldToTiles } from "./field";
 import { GameModel } from "./game";
+import tileset from "./oubliette_tileset_transparent.png";
 
-const BLOCK_W = 40;
-const BLOCK_H = 40;
+const TILE_W = 16;
+const TILE_H = 16;
 
-const Color = {
-  [Tile.BLANK]: "",
-  [Tile.BRICK]: "DarkRed",
-  [Tile.BLOCK]: "DarkCyan",
-  [Tile.LADDER]: "GreenYellow",
-  [Tile.ROPE]: "Khaki",
-  [Tile.EXIT]: "Red",
-  [Tile.JEWEL]: "Cyan",
-  [Tile.CHARA]: "",
+export const CELL_W = TILE_W * 3;
+export const CELL_H = TILE_H * 3;
+
+const TilePos = {
+  [Tile.BLANK]: { x: 6, y: 5 },
+  [Tile.BRICK]: { x: 4, y: 0 },
+  [Tile.BLOCK]: { x: 3, y: 0 },
+  [Tile.LADDER]: { x: 5, y: 4 },
+  [Tile.ROPE]: { x: 6, y: 2 },
+  [Tile.EXIT]: { x: 3, y: 3 },
+  [Tile.JEWEL]: { x: 4, y: 3 },
+  [Tile.CHARA]: { x: 1, y: 7 },
 };
 
 interface BoardProps {
@@ -26,52 +30,66 @@ interface BoardProps {
   onKeyDown: (event: React.KeyboardEvent<HTMLCanvasElement>) => void;
 }
 
-function drawBlock(
+function drawCell(
   context: CanvasRenderingContext2D,
+  tileset: HTMLImageElement,
   { x, y }: Point,
-  color: string
+  tile: Tile
 ) {
-  context.fillStyle = color;
-  context.fillRect(BLOCK_W * x, BLOCK_H * y, BLOCK_W, BLOCK_H);
-  context.strokeRect(BLOCK_W * x, BLOCK_H * y, BLOCK_W, BLOCK_H);
+  const { x: tilePosX, y: tilePosY } = TilePos[tile];
+  context.drawImage(
+    tileset,
+    tilePosX * TILE_W + 0.25,
+    tilePosY * TILE_H + 0.25,
+    TILE_W - 0.25,
+    TILE_H - 0.25,
+    CELL_W * x,
+    CELL_H * y,
+    CELL_W,
+    CELL_H
+  );
 }
 
 function drawChara(
   context: CanvasRenderingContext2D,
-  { x, y }: Point,
-  beated: boolean
+  tileset: HTMLImageElement,
+  point: Point
 ) {
-  const cornerX = BLOCK_W * (x + 0.2);
-  const cornerY = BLOCK_H * (y + 0.2);
-  const width = BLOCK_W * 0.6;
-  const height = BLOCK_H * 0.6;
+  drawCell(context, tileset, point, Tile.CHARA);
+}
 
-  context.fillStyle = beated ? "Yellow" : "Pink";
-  context.fillRect(cornerX, cornerY, width, height);
-  context.strokeRect(cornerX, cornerY, width, height);
+function loadImage() {
+  const image = new Image();
+  image.src = tileset;
+  return image;
 }
 
 export default function Board(props: BoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const tilesetImageRef = useRef(loadImage());
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
+    const canvas = canvasRef.current!;
+    if (!canvas) return;
+
     canvas.focus();
     const context = canvas.getContext("2d")!;
 
+    context.fillStyle = "#0f0f3e";
+    context.fillRect(0, 0, props.width, props.height);
+
+    const tileset = tilesetImageRef.current;
     const { field, chara, beated } = props.gameModel;
     fieldToTiles(field)
       .filter(({ tile }) => tile !== Tile.BLANK)
       .forEach(({ point, tile }) => {
-        drawBlock(context, point, Color[tile]);
+        drawCell(context, tileset, point, tile);
       });
-    drawChara(context, chara, beated);
+    if (!beated) drawChara(context, tileset, chara);
 
     return () => context.clearRect(0, 0, props.width, props.height);
   });
+
   return (
     <canvas
       ref={canvasRef}

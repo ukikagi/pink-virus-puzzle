@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { createModel, dig, GameModel, move, reset } from "./game";
 import "./App.css";
-import Board from "./Board";
-import { parseLevel } from "./level";
+import Board, { CELL_H, CELL_W } from "./Board";
+import { LEVEL_NROW, LEVEL_NCOL, parseLevel } from "./level";
 import { Direction } from "./point";
 import { sampleLevels } from "./sampleLevel";
 import { Box, Button, MenuItem, Select, TextField } from "@material-ui/core";
@@ -69,8 +69,8 @@ function App() {
         tabIndex={0}
         onKeyDown={onKeyDown}
         gameModel={gameModel}
-        width={480}
-        height={480}
+        width={CELL_W * LEVEL_NCOL}
+        height={CELL_H * LEVEL_NROW}
       />
       <TextField
         value={levelString}

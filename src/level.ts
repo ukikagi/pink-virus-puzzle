@@ -17,13 +17,13 @@ export interface Level {
   height: number;
 }
 
-const FIXED_HEIGHT = 12;
-const FIXED_WIDTH = 12;
+export const LEVEL_NROW = 12;
+export const LEVEL_NCOL = 12;
 
 export function parseLevel(
   data: string,
-  height: number = FIXED_HEIGHT,
-  width: number = FIXED_WIDTH
+  height: number = LEVEL_NROW,
+  width: number = LEVEL_NCOL
 ): Level {
   console.assert(data.length === width * height);
   const field = range(height).map((y) =>
