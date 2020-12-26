@@ -12,8 +12,8 @@ const defaultLevelString = sampleLevels[0].data;
 
 const description = `
 # Pink Virus Puzzle
-かつてパズルゲームサイト[ぼらＱ](https://web.archive.org/web/20060116224359/http://boraq.hp.infoseek.co.jp/main.htm)\
-に掲載されていたパズルゲーム Pink Virus のクローンです。
+かつてパズルゲームサイト「[ぼらＱ](https://web.archive.org/web/20060116224359/http://boraq.hp.infoseek.co.jp/main.htm)」\
+に掲載されていたパズルゲーム「Pink Virus」のクローンです。
 
 ## ルール
 鍵を全部集めて出口を目指しましょう。
@@ -33,9 +33,8 @@ const description = `
 - Z/X: 左下・右下のレンガを壊す
 - R: リスタート
 
-## 使用素材
-- "[Oubliette Tileset](https://safwyl.itch.io/oubliette-tileset)" by [safwyl](https://safwyl.itch.io/) (licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))
-
+## ソースコード
+- <https://github.com/ukikagi/pink-virus-puzzle/>
 `;
 
 function App() {
