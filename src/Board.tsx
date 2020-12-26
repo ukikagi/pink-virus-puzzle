@@ -4,6 +4,7 @@ import { Point } from "./point";
 import { fieldToTiles } from "./field";
 import { GameModel } from "./game";
 import tileset from "./oubliette_tileset_transparent.png";
+import useImage from "use-image";
 
 const TILE_W = 16;
 const TILE_H = 16;
@@ -50,17 +51,13 @@ function drawCell(
   );
 }
 
-function loadImage() {
-  const image = new Image();
-  image.src = tileset;
-  return image;
-}
-
 export default function Board(props: BoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const tilesetImageRef = useRef(loadImage());
+  const [tilesetImage] = useImage(tileset);
 
   useEffect(() => {
+    if (!tilesetImage) return;
+
     const canvas = canvasRef.current!;
     if (!canvas) return;
 
@@ -70,14 +67,13 @@ export default function Board(props: BoardProps) {
     context.fillStyle = "#0f0f3e";
     context.fillRect(0, 0, props.width, props.height);
 
-    const tileset = tilesetImageRef.current;
     const { field, chara, beated } = props.gameModel;
     fieldToTiles(field)
       .filter(({ tile }) => tile !== Tile.BLANK)
       .forEach(({ point, tile }) => {
-        drawCell(context, tileset, point, tile);
+        drawCell(context, tilesetImage, point, tile);
       });
-    if (!beated) drawCell(context, tileset, chara, Tile.CHARA);
+    if (!beated) drawCell(context, tilesetImage, chara, Tile.CHARA);
 
     return () => context.clearRect(0, 0, props.width, props.height);
   });
