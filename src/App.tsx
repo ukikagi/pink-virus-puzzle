@@ -68,8 +68,7 @@ function App() {
       <Board
         tabIndex={0}
         onKeyDown={onKeyDown}
-        field={gameModel.field}
-        chara={gameModel.chara}
+        gameModel={gameModel}
         width={480}
         height={480}
       />

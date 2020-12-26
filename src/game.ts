@@ -40,8 +40,7 @@ function reflect(mutModel: GameModel): void {
 }
 
 export function createModel(level: Level): GameModel {
-  const width = level.width;
-  const height = level.height;
+  const { width, height } = level;
 
   let value: Tile[][] = clone2dArray(level.field);
   let chara: Point = { x: 0, y: 0 };
@@ -72,8 +71,9 @@ export function reset(oldModel: GameModel): GameModel {
 
 export function move(oldModel: GameModel, dir: Direction): GameModel {
   if (
-    dir === Direction.UP &&
-    getTile(oldModel.field, oldModel.chara) !== Tile.LADDER
+    oldModel.beated ||
+    (dir === Direction.UP &&
+      getTile(oldModel.field, oldModel.chara) !== Tile.LADDER)
   ) {
     return oldModel;
   }
@@ -97,6 +97,9 @@ export function dig(
   oldModel: GameModel,
   dir: Direction.LEFT | Direction.RIGHT
 ): GameModel {
+  if (oldModel.beated) {
+    return oldModel;
+  }
   const target = movePoint(movePoint(oldModel.chara, Direction.DOWN), dir);
   if (!isBreakable(oldModel.field, target)) {
     return oldModel;
