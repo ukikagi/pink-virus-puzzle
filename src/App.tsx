@@ -90,6 +90,7 @@ function App() {
         setGameModel(reset(gameModel));
         break;
     }
+    event.preventDefault();
   }
 
   return (
