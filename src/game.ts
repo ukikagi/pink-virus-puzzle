@@ -72,6 +72,7 @@ export function reset(oldModel: GameModel): GameModel {
 export function move(oldModel: GameModel, dir: Direction): GameModel {
   if (
     oldModel.beated ||
+    getTile(oldModel.field, oldModel.chara) == Tile.BRICK ||
     (dir === Direction.UP &&
       getTile(oldModel.field, oldModel.chara) !== Tile.LADDER)
   ) {
