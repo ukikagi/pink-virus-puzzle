@@ -110,7 +110,9 @@ export function dig(
   newModel.queue.push(target);
   if (newModel.queue.length > MAXQ) {
     const popped = newModel.queue.shift()!;
-    setTile(newModel.field, popped, Tile.BRICK);
+    if (getTile(newModel.field, popped) === Tile.BLANK) {
+      setTile(newModel.field, popped, Tile.BRICK);
+    }
   }
 
   return newModel;

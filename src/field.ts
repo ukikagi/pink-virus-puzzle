@@ -36,10 +36,12 @@ export function isBreakable(field: Field, p: Point): boolean {
 
 export function isFalling(field: Field, p: Point) {
   const pointBelow = movePoint(p, Direction.DOWN);
-  return (
-    ![Tile.LADDER, Tile.ROPE, Tile.EXIT].includes(getTile(field, p)) &&
-    canGoThrough(field, pointBelow) &&
-    ![Tile.LADDER].includes(getTile(field, pointBelow))
+  return !(
+    [Tile.LADDER, Tile.ROPE, Tile.EXIT].includes(getTile(field, p)) ||
+    !isInRange(field, pointBelow) ||
+    [Tile.BRICK, Tile.BLOCK, Tile.LADDER, Tile.EXIT].includes(
+      getTile(field, pointBelow)
+    )
   );
 }
 
