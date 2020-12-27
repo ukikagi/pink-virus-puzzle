@@ -60,8 +60,6 @@ export default function Board(props: BoardProps) {
 
     const canvas = canvasRef.current!;
     if (!canvas) return;
-
-    canvas.focus();
     const context = canvas.getContext("2d")!;
 
     context.fillStyle = "#0f0f3e";
