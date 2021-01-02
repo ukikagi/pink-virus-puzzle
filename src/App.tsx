@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer } from "react";
 import {
   createModel,
   dig,
@@ -46,27 +46,110 @@ const description = `
 
 const TICK_DELAY = 100;
 
-function App() {
-  const [selectValue, setSelectValue] = useState(defaultLevelString);
-  const [levelString, setLevelString] = useState(defaultLevelString);
-  const [gameModel, setGameModel] = useState<GameModel>(
-    createModel(parseLevel(defaultLevelString))
-  );
+type Action =
+  | {
+      type: "move";
+      direction: Direction;
+    }
+  | {
+      type: "dig";
+      direction: Direction.LEFT | Direction.RIGHT;
+    }
+  | {
+      type: "fall";
+    }
+  | {
+      type: "reset";
+    }
+  | {
+      type: "load";
+      levelString: string;
+    }
+  | {
+      type: "setSelectValue";
+      value: string;
+    }
+  | {
+      type: "setLevelString";
+      value: string;
+    };
 
-  const falling = isFallingModel(gameModel);
+interface State {
+  selectValue: string;
+  levelString: string;
+  gameModel: GameModel;
+}
+
+const initialState = {
+  selectValue: defaultLevelString,
+  levelString: defaultLevelString,
+  gameModel: createModel(parseLevel(defaultLevelString)),
+};
+
+const reducer = (state: State, action: Action): State => {
+  return {
+    selectValue: selectValueReducer(state.selectValue, action),
+    levelString: levelStringReducer(state.levelString, action),
+    gameModel: gameModelReducer(state.gameModel, action),
+  };
+};
+
+const gameModelReducer = (model: GameModel, action: Action): GameModel => {
+  switch (action.type) {
+    case "move":
+      if (isFallingModel(model)) return model;
+      return move(model, action.direction);
+    case "dig":
+      if (isFallingModel(model)) return model;
+      return dig(model, action.direction);
+    case "fall":
+      return move(model, Direction.DOWN);
+    case "reset":
+      return reset(model);
+    case "load":
+      return createModel(parseLevel(action.levelString));
+    default:
+      return model;
+  }
+};
+
+const selectValueReducer = (selectValue: string, action: Action): string => {
+  switch (action.type) {
+    case "setSelectValue":
+      return action.value;
+    default:
+      return selectValue;
+  }
+};
+
+const levelStringReducer = (levelString: string, action: Action): string => {
+  switch (action.type) {
+    case "setLevelString":
+      return action.value;
+    default:
+      return levelString;
+  }
+};
+
+function App() {
+  const Dispatch = React.createContext(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const setLevelString = (value: string) =>
+    dispatch({ type: "setLevelString", value: value });
+  const setSelectValue = (value: string) =>
+    dispatch({ type: "setSelectValue", value: value });
+
+  const falling = isFallingModel(state.gameModel);
   useEffect(() => {
     if (!falling) return;
-    const interval = setInterval(
-      () => setGameModel((gameModel) => move(gameModel, Direction.DOWN)),
-      TICK_DELAY
-    );
+    const interval = setInterval(() => dispatch({ type: "fall" }), TICK_DELAY);
+    console.log("setInterval is invoked.");
     return () => clearInterval(interval);
   }, [falling]);
 
   function loadLevel(levelString: string) {
-    const level = parseLevel(levelString);
-    const model = createModel(level);
-    setGameModel(model);
+    dispatch({ type: "load", levelString: levelString });
   }
 
   function onLevelStringChange(event: React.ChangeEvent<{ value: string }>) {
@@ -81,37 +164,31 @@ function App() {
   }
 
   function onClick() {
-    loadLevel(levelString);
+    loadLevel(state.levelString);
   }
 
   function onKeyDown<T>(event: React.KeyboardEvent<T>) {
     switch (event.key) {
       case "ArrowDown":
-        if (isFallingModel(gameModel)) return;
-        setGameModel(move(gameModel, Direction.DOWN));
+        dispatch({ type: "move", direction: Direction.DOWN });
         break;
       case "ArrowLeft":
-        if (isFallingModel(gameModel)) return;
-        setGameModel(move(gameModel, Direction.LEFT));
+        dispatch({ type: "move", direction: Direction.LEFT });
         break;
       case "ArrowRight":
-        if (isFallingModel(gameModel)) return;
-        setGameModel(move(gameModel, Direction.RIGHT));
+        dispatch({ type: "move", direction: Direction.RIGHT });
         break;
       case "ArrowUp":
-        if (isFallingModel(gameModel)) return;
-        setGameModel(move(gameModel, Direction.UP));
+        dispatch({ type: "move", direction: Direction.UP });
         break;
       case "z":
-        if (isFallingModel(gameModel)) return;
-        setGameModel(dig(gameModel, Direction.LEFT));
+        dispatch({ type: "dig", direction: Direction.LEFT });
         break;
       case "x":
-        if (isFallingModel(gameModel)) return;
-        setGameModel(dig(gameModel, Direction.RIGHT));
+        dispatch({ type: "dig", direction: Direction.RIGHT });
         break;
       case "r":
-        setGameModel(reset(gameModel));
+        dispatch({ type: "reset" });
         break;
     }
     event.preventDefault();
@@ -125,12 +202,12 @@ function App() {
       <Board
         tabIndex={0}
         onKeyDown={onKeyDown}
-        gameModel={gameModel}
+        gameModel={state.gameModel}
         width={CELL_W * LEVEL_NCOL}
         height={CELL_H * LEVEL_NROW}
       />
       <TextField
-        value={levelString}
+        value={state.levelString}
         rows={3}
         onChange={onLevelStringChange}
         multiline
@@ -140,7 +217,7 @@ function App() {
       <Box>
         <Select
           variant="outlined"
-          value={selectValue}
+          value={state.selectValue}
           onChange={onSelectChange}
           style={{ width: 320 }}
         >
