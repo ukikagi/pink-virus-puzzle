@@ -1,3 +1,4 @@
+import { Action, ActionType } from "./state";
 import {
   canGoThrough,
   countJewel,
@@ -7,7 +8,7 @@ import {
   isFalling,
   setTile,
 } from "./field";
-import { Level, Tile } from "./level";
+import { Level, parseLevel, Tile } from "./level";
 import { Direction, movePoint, Point } from "./point";
 import { clone2dArray, range } from "./utils";
 
@@ -21,6 +22,26 @@ export interface GameModel {
   queue: Point[];
   beated: boolean;
 }
+
+export const gameModelReducer = (
+  model: GameModel,
+  action: Action
+): GameModel => {
+  switch (action.type) {
+    case ActionType.Move:
+      return move(model, action.direction);
+    case ActionType.Dig:
+      return dig(model, action.direction);
+    case ActionType.Tick:
+      return tick(model);
+    case ActionType.Reset:
+      return reset(model);
+    case ActionType.Load:
+      return createModel(parseLevel(action.levelString));
+    default:
+      return model;
+  }
+};
 
 function cloneModel(gameState: GameModel): GameModel {
   return JSON.parse(JSON.stringify(gameState));
@@ -37,6 +58,10 @@ function reflect(mutModel: GameModel): void {
   if (countJewel(mutField) === 0) {
     setTile(mutField, exit, Tile.EXIT);
   }
+}
+
+export function isWaiting(model: GameModel): boolean {
+  return isFalling(model.field, model.chara);
 }
 
 export function createModel(level: Level): GameModel {
@@ -65,56 +90,62 @@ export function createModel(level: Level): GameModel {
   return { level, field, chara, exit, queue: [], beated: false };
 }
 
-export function reset(oldModel: GameModel): GameModel {
-  return createModel(oldModel.level);
+function reset(model: GameModel): GameModel {
+  return createModel(model.level);
 }
 
-export function move(oldModel: GameModel, dir: Direction): GameModel {
+function move(model: GameModel, dir: Direction): GameModel {
+  if (isWaiting(model)) return model;
+  if (model.beated) return model;
+
   if (
-    oldModel.beated ||
-    getTile(oldModel.field, oldModel.chara) === Tile.BRICK ||
-    (dir === Direction.UP &&
-      getTile(oldModel.field, oldModel.chara) !== Tile.LADDER)
+    getTile(model.field, model.chara) === Tile.BRICK ||
+    (dir === Direction.UP && getTile(model.field, model.chara) !== Tile.LADDER)
   ) {
-    return oldModel;
+    return model;
   }
-  const newChara = movePoint(oldModel.chara, dir);
-  if (!canGoThrough(oldModel.field, newChara)) {
-    return oldModel;
-  }
+  const newChara = movePoint(model.chara, dir);
+  if (!canGoThrough(model.field, newChara)) return model;
 
-  let newModel = cloneModel(oldModel);
-  newModel.chara = newChara;
-  reflect(newModel);
-  while (isFalling(newModel.field, newModel.chara)) {
-    newModel.chara = movePoint(newModel.chara, Direction.DOWN);
-    reflect(newModel);
-  }
+  model = cloneModel(model);
+  model.chara = newChara;
+  reflect(model);
 
-  return newModel;
+  return model;
 }
 
-export function dig(
-  oldModel: GameModel,
+function dig(
+  model: GameModel,
   dir: Direction.LEFT | Direction.RIGHT
 ): GameModel {
-  if (oldModel.beated) {
-    return oldModel;
-  }
-  const target = movePoint(movePoint(oldModel.chara, Direction.DOWN), dir);
-  if (!isBreakable(oldModel.field, target)) {
-    return oldModel;
+  if (isWaiting(model)) return model;
+  if (model.beated) return model;
+
+  const target = movePoint(movePoint(model.chara, Direction.DOWN), dir);
+  if (!isBreakable(model.field, target)) {
+    return model;
   }
 
-  let newModel = cloneModel(oldModel);
-  setTile(newModel.field, target, Tile.BLANK);
-  newModel.queue.push(target);
-  if (newModel.queue.length > MAXQ) {
-    const popped = newModel.queue.shift()!;
-    if (getTile(newModel.field, popped) === Tile.BLANK) {
-      setTile(newModel.field, popped, Tile.BRICK);
+  model = cloneModel(model);
+  setTile(model.field, target, Tile.BLANK);
+  model.queue.push(target);
+  if (model.queue.length > MAXQ) {
+    const popped = model.queue.shift()!;
+    if (getTile(model.field, popped) === Tile.BLANK) {
+      setTile(model.field, popped, Tile.BRICK);
     }
   }
 
-  return newModel;
+  return model;
+}
+
+function tick(model: GameModel) {
+  if (isFalling(model.field, model.chara)) {
+    model = cloneModel(model);
+    model.chara = movePoint(model.chara, Direction.DOWN);
+    reflect(model);
+    return model;
+  } else {
+    return model;
+  }
 }

@@ -1,10 +1,10 @@
-import React, { useRef, useEffect } from "react";
-import { Tile } from "./level";
-import { Point } from "./point";
+import React, { useRef, useEffect, useContext } from "react";
+import { LEVEL_NCOL, LEVEL_NROW, Tile } from "./level";
+import { Direction, Point } from "./point";
 import { fieldToTiles } from "./field";
-import { GameModel } from "./game";
 import tileset from "./oubliette_tileset_transparent.png";
 import useImage from "use-image";
+import { ActionType, AppContext } from "./state";
 
 const TILE_W = 16;
 const TILE_H = 16;
@@ -23,12 +23,11 @@ const TilePos = {
   [Tile.CHARA]: { x: 1, y: 7 },
 };
 
+const WIDTH = CELL_W * LEVEL_NCOL;
+const HEIGHT = CELL_H * LEVEL_NROW;
+
 interface BoardProps {
-  gameModel: GameModel;
-  width: number;
-  height: number;
   tabIndex: number;
-  onKeyDown: (event: React.KeyboardEvent<HTMLCanvasElement>) => void;
 }
 
 function drawCell(
@@ -55,6 +54,8 @@ export default function Board(props: BoardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tilesetImage] = useImage(tileset);
 
+  const { state, dispatch } = useContext(AppContext)!;
+
   useEffect(() => {
     if (!tilesetImage) return;
 
@@ -63,9 +64,9 @@ export default function Board(props: BoardProps) {
     const context = canvas.getContext("2d")!;
 
     context.fillStyle = "#0f0f3e";
-    context.fillRect(0, 0, props.width, props.height);
+    context.fillRect(0, 0, WIDTH, HEIGHT);
 
-    const { field, chara, beated } = props.gameModel;
+    const { field, chara, beated } = state.gameModel;
     fieldToTiles(field)
       .filter(({ tile }) => tile !== Tile.BLANK)
       .forEach(({ point, tile }) => {
@@ -73,16 +74,43 @@ export default function Board(props: BoardProps) {
       });
     if (!beated) drawCell(context, tilesetImage, chara, Tile.CHARA);
 
-    return () => context.clearRect(0, 0, props.width, props.height);
+    return () => context.clearRect(0, 0, WIDTH, HEIGHT);
   });
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
+    switch (event.key) {
+      case "ArrowDown":
+        dispatch({ type: ActionType.Move, direction: Direction.DOWN });
+        break;
+      case "ArrowLeft":
+        dispatch({ type: ActionType.Move, direction: Direction.LEFT });
+        break;
+      case "ArrowRight":
+        dispatch({ type: ActionType.Move, direction: Direction.RIGHT });
+        break;
+      case "ArrowUp":
+        dispatch({ type: ActionType.Move, direction: Direction.UP });
+        break;
+      case "z":
+        dispatch({ type: ActionType.Dig, direction: Direction.LEFT });
+        break;
+      case "x":
+        dispatch({ type: ActionType.Dig, direction: Direction.RIGHT });
+        break;
+      case "r":
+        dispatch({ type: ActionType.Reset });
+        break;
+    }
+    event.preventDefault();
+  };
 
   return (
     <canvas
       ref={canvasRef}
-      width={props.width}
-      height={props.height}
+      width={WIDTH}
+      height={HEIGHT}
       tabIndex={props.tabIndex}
-      onKeyDown={props.onKeyDown}
+      onKeyDown={onKeyDown}
     />
   );
 }
