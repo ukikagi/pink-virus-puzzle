@@ -69,52 +69,51 @@ export function createModel(level: Level): GameModel {
   return { level, field, chara, exit, queue: [], beated: false };
 }
 
-export function reset(oldModel: GameModel): GameModel {
-  return createModel(oldModel.level);
+export function reset(model: GameModel): GameModel {
+  return createModel(model.level);
 }
 
-export function move(oldModel: GameModel, dir: Direction): GameModel {
+export function move(model: GameModel, dir: Direction): GameModel {
   if (
-    oldModel.beated ||
-    getTile(oldModel.field, oldModel.chara) === Tile.BRICK ||
-    (dir === Direction.UP &&
-      getTile(oldModel.field, oldModel.chara) !== Tile.LADDER)
+    model.beated ||
+    getTile(model.field, model.chara) === Tile.BRICK ||
+    (dir === Direction.UP && getTile(model.field, model.chara) !== Tile.LADDER)
   ) {
-    return oldModel;
+    return model;
   }
-  const newChara = movePoint(oldModel.chara, dir);
-  if (!canGoThrough(oldModel.field, newChara)) {
-    return oldModel;
+  const newChara = movePoint(model.chara, dir);
+  if (!canGoThrough(model.field, newChara)) {
+    return model;
   }
 
-  let newModel = cloneModel(oldModel);
-  newModel.chara = newChara;
-  reflect(newModel);
+  model = cloneModel(model);
+  model.chara = newChara;
+  reflect(model);
 
-  return newModel;
+  return model;
 }
 
 export function dig(
-  oldModel: GameModel,
+  model: GameModel,
   dir: Direction.LEFT | Direction.RIGHT
 ): GameModel {
-  if (oldModel.beated) {
-    return oldModel;
+  if (model.beated) {
+    return model;
   }
-  const target = movePoint(movePoint(oldModel.chara, Direction.DOWN), dir);
-  if (!isBreakable(oldModel.field, target)) {
-    return oldModel;
+  const target = movePoint(movePoint(model.chara, Direction.DOWN), dir);
+  if (!isBreakable(model.field, target)) {
+    return model;
   }
 
-  let newModel = cloneModel(oldModel);
-  setTile(newModel.field, target, Tile.BLANK);
-  newModel.queue.push(target);
-  if (newModel.queue.length > MAXQ) {
-    const popped = newModel.queue.shift()!;
-    if (getTile(newModel.field, popped) === Tile.BLANK) {
-      setTile(newModel.field, popped, Tile.BRICK);
+  model = cloneModel(model);
+  setTile(model.field, target, Tile.BLANK);
+  model.queue.push(target);
+  if (model.queue.length > MAXQ) {
+    const popped = model.queue.shift()!;
+    if (getTile(model.field, popped) === Tile.BLANK) {
+      setTile(model.field, popped, Tile.BRICK);
     }
   }
 
-  return newModel;
+  return model;
 }
