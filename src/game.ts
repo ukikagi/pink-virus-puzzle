@@ -39,6 +39,10 @@ function reflect(mutModel: GameModel): void {
   }
 }
 
+export function isFallingModel(model: GameModel): boolean {
+  return isFalling(model.field, model.chara);
+}
+
 export function createModel(level: Level): GameModel {
   const { width, height } = level;
 
@@ -86,10 +90,6 @@ export function move(oldModel: GameModel, dir: Direction): GameModel {
   let newModel = cloneModel(oldModel);
   newModel.chara = newChara;
   reflect(newModel);
-  while (isFalling(newModel.field, newModel.chara)) {
-    newModel.chara = movePoint(newModel.chara, Direction.DOWN);
-    reflect(newModel);
-  }
 
   return newModel;
 }

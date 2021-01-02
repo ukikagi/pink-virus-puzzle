@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { createModel, dig, GameModel, move, reset } from "./game";
+import React, { useEffect, useState } from "react";
+import {
+  createModel,
+  dig,
+  GameModel,
+  isFallingModel,
+  move,
+  reset,
+} from "./game";
 import "./App.css";
 import Board, { CELL_H, CELL_W } from "./Board";
 import { LEVEL_NROW, LEVEL_NCOL, parseLevel } from "./level";
@@ -37,12 +44,24 @@ const description = `
 - <https://github.com/ukikagi/pink-virus-puzzle/>
 `;
 
+const TICK_DELAY = 100;
+
 function App() {
   const [selectValue, setSelectValue] = useState(defaultLevelString);
   const [levelString, setLevelString] = useState(defaultLevelString);
   const [gameModel, setGameModel] = useState<GameModel>(
     createModel(parseLevel(defaultLevelString))
   );
+
+  const falling = isFallingModel(gameModel);
+  useEffect(() => {
+    if (!falling) return;
+    const interval = setInterval(
+      () => setGameModel((gameModel) => move(gameModel, Direction.DOWN)),
+      TICK_DELAY
+    );
+    return () => clearInterval(interval);
+  }, [falling]);
 
   function loadLevel(levelString: string) {
     const level = parseLevel(levelString);
@@ -68,21 +87,27 @@ function App() {
   function onKeyDown<T>(event: React.KeyboardEvent<T>) {
     switch (event.key) {
       case "ArrowDown":
+        if (isFallingModel(gameModel)) return;
         setGameModel(move(gameModel, Direction.DOWN));
         break;
       case "ArrowLeft":
+        if (isFallingModel(gameModel)) return;
         setGameModel(move(gameModel, Direction.LEFT));
         break;
       case "ArrowRight":
+        if (isFallingModel(gameModel)) return;
         setGameModel(move(gameModel, Direction.RIGHT));
         break;
       case "ArrowUp":
+        if (isFallingModel(gameModel)) return;
         setGameModel(move(gameModel, Direction.UP));
         break;
       case "z":
+        if (isFallingModel(gameModel)) return;
         setGameModel(dig(gameModel, Direction.LEFT));
         break;
       case "x":
+        if (isFallingModel(gameModel)) return;
         setGameModel(dig(gameModel, Direction.RIGHT));
         break;
       case "r":
