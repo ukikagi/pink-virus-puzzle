@@ -47,7 +47,7 @@
   },
   "homepage": "https://ukikagi.jp/pink-virus-puzzle/",
   "devDependencies": {
-    "gh-pages": "^3.1.0",
+    "gh-pages": "^5.0.0",
     "prettier": "^2.2.1"
   }
 }
