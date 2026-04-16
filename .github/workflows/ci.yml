@@ -1,14 +1,12 @@
-name: Deploy GitHub Pages
+name: CI
 
 on:
+  pull_request:
   push:
     branches: [master]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,9 +22,5 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+      - name: Audit production dependencies
+        run: npm audit --audit-level=high --omit=dev

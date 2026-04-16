@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 
@@ -31,6 +31,6 @@ const description = `
 
 export const Description = () => (
   <Box style={{ textAlign: "left" }}>
-    <ReactMarkdown children={description} />
+    <ReactMarkdown>{description}</ReactMarkdown>
   </Box>
 );

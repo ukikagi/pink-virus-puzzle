@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
 import "./App.css";
 import Board from "./Board";
