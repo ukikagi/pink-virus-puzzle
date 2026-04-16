@@ -1,4 +1,10 @@
-import { Button, MenuItem, Select, TextField } from "@material-ui/core";
+import {
+  Button,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField,
+} from "@mui/material";
 import React, { useContext } from "react";
 import { Action, ActionType, AppContext } from "./state";
 import { sampleLevels } from "./sampleLevel";
@@ -35,12 +41,14 @@ const LevelInput = () => {
   const setSelectValue = (value: string) =>
     dispatch({ type: ActionType.SetSelectValue, value: value });
 
-  function onLevelStringChange(event: React.ChangeEvent<{ value: string }>) {
+  function onLevelStringChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
     setLevelString(event.target.value);
   }
 
-  function onSelectChange(event: React.ChangeEvent<{ value: unknown }>) {
-    const newLevelString = event.target.value as string;
+  function onSelectChange(event: SelectChangeEvent<string>) {
+    const newLevelString = event.target.value;
     setLevelString(newLevelString);
     setSelectValue(newLevelString);
     loadLevel(newLevelString);
@@ -58,7 +66,7 @@ const LevelInput = () => {
     <>
       <TextField
         value={state.levelString}
-        rows={3}
+        minRows={3}
         onChange={onLevelStringChange}
         multiline
         variant="outlined"
